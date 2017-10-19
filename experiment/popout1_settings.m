@@ -16,12 +16,16 @@ else
 end
 
 stim.training_stage_matrix = {...
-    'visually guided saccade', 'target soa decrease', 'target soa 0', ...
+    'visually guided saccade st maintain increase', 'visually guided saccade', 'target soa decrease', 'target soa 0', ...
     'memory delay increase', 'target & distractor all combinations', 'popout', 'all target shapes', ...
     'final version'};
 
 
 %% Variables for different training stages
+
+% visually guided saccade st maintain increase
+stim.response_saccade_hold_duration_ini = 0.05;
+stim.response_saccade_hold_duration_ini_step = 0.05;
 
 % target soa
 % distractor appears later than target, decrease soa until = 0
@@ -245,7 +249,7 @@ stim.trial_correct_goal_up = 3; % What is accuracy to make task harder
 stim.trial_correct_goal_down = 2; % What is accuracy to make task harder
 
 % Other
-stim.trial_error_repeat = 1; % 1 - repeats same trial if error occured immediatelly; 0 - no repeat
+stim.trial_error_repeat = 0; % 1 - repeats same trial if error occured immediatelly; 0 - no repeat
 stim.trial_abort_counter = 20; % Quit experiment if trials in a row are aborted
 stim.plot_every_x_trial = 1; % Every which trial to plot (every 1, 2nd, 10th etc trial)
 stim.end_experiment = 0; % Default value 
@@ -316,6 +320,7 @@ stim.esetup_st2_angle = NaN;
 stim.esetup_target_soa = NaN; % SOA between st1 & st2
 stim.esetup_target_size_eyetrack(1,1:4) = NaN;
 stim.esetup_target_number{1} = NaN; % How many targets
+stim.esetup_response_saccade_hold_duration = NaN;
 
 % Popout
 stim.esetup_popout_on = NaN;

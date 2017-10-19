@@ -107,7 +107,7 @@ expsetup.stim.esetup_fixation_drift_offset (tid,1:2) = 0;
 %% Target and/or distractor on?
 
 a = [];
-if strcmp(expsetup.stim.esetup_exp_version{tid,1}, 'visually guided saccade') % Single target only
+if strncmp(expsetup.stim.esetup_exp_version{tid,1}, 'visually guided saccade', 23) % Single target only
     t1 = expsetup.stim.st1_only_probability_ini; 
     a(1:t1) = 1;
     temp1 = Shuffle(a);
@@ -325,6 +325,24 @@ expsetup.stim.esetup_memory_duration(tid) = temp1(1);
 
 temp1=Shuffle(expsetup.stim.response_saccade_accuracy);
 expsetup.stim.esetup_target_size_eyetrack(tid,1:4) = [0, 0, temp1(1), temp1(1)];
+
+%% st hold duration
+
+%=========
+ind0 = strcmp(expsetup.stim.training_stage_matrix, expsetup.stim.esetup_exp_version{tid});
+ind1 = find(ind0==1);
+ind0 = strcmp(expsetup.stim.training_stage_matrix, 'visually guided saccade st maintain increase');
+ind2 = find(ind0==1);
+if ind1>ind2
+    temp1 = Shuffle(expsetup.stim.response_saccade_hold_duration);
+elseif ind1==ind2
+    temp1 = Shuffle(tv1(1).temp_var_current);
+    var_copy.esetup_response_saccade_hold_duration = temp1(1); % Copy variable for error trials
+elseif ind1<ind2
+    temp1 = Shuffle(expsetup.stim.response_saccade_hold_duration_ini);
+end
+%===========
+expsetup.stim.esetup_response_saccade_hold_duration(tid)=temp1(1);
 
 
 %% Total fixation duration

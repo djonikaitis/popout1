@@ -6,6 +6,17 @@ tv1 = struct; % Temporary Variable (TV)
 tv1(1).update = 'none';
 
 % Select variables to be modified
+if strcmp(expsetup.stim.exp_version_temp, 'visually guided saccade st maintain increase')
+    tv1(1).temp_var_final = nanmean(expsetup.stim.response_saccade_hold_duration);
+    tv1(1).temp_var_ini = expsetup.stim.response_saccade_hold_duration_ini;
+    tv1(1).temp_var_ini_step = expsetup.stim.response_saccade_hold_duration_ini;
+    tv1(1).name = 'esetup_response_saccade_hold_duration';
+    tv1(1).temp_var_current = NaN; % This value will be filed up
+    tv1(1).update = 'gradual';
+end
+
+
+% Select variables to be modified
 if strcmp(expsetup.stim.exp_version_temp, 'target soa decrease')
     tv1(1).temp_var_final = nanmean(expsetup.stim.target_soa);
     tv1(1).temp_var_ini = expsetup.stim.target_soa_ini;

@@ -144,14 +144,20 @@ loop_over = 0;
 
 % Remove pop-out stimuli that overlap with st1 & st2
 if strcmp(expsetup.stim.esetup_target_number{tid}, 'st1') || strcmp(expsetup.stim.esetup_target_number{tid}, 'st1 & st2')
-    ind = popout_rect == st1_rect;
-    ind = sum(ind,1);
-    popout_rect (:,ind==4)=[];
+    ind_x = [];
+    for i=1:size(popout_rect,2)
+        ind = popout_rect(:,1) == st1_rect;
+        ind_x = sum(ind,1);
+    end
+    popout_rect (:,ind_x==4)=[];
 end
 if strcmp(expsetup.stim.esetup_target_number{tid}, 'st2') || strcmp(expsetup.stim.esetup_target_number{tid}, 'st1 & st2')
-    ind = popout_rect == st2_rect;
-    ind = sum(ind,1);
-    popout_rect (:,ind==4)=[];
+    ind_x = [];
+    for i=1:size(popout_rect,2)
+        ind = popout_rect(:,1) == st2_rect;
+        ind_x = sum(ind,1);
+    end
+    popout_rect (:,ind_x==4)=[];
 end
 
 while loop_over==0
@@ -171,7 +177,7 @@ while loop_over==0
     end
     
     % Changes in fixation (remove fixation)
-    if strcmp(expsetup.stim.esetup_exp_version, 'visually guided saccade')
+    if strncmp(expsetup.stim.esetup_exp_version, 'visually guided saccade', 23)
         t0 = expsetup.stim.edata_fixation_acquired(tid,1);
         t1 = expsetup.stim.esetup_total_fixation_duration(tid,1);
         if ~isnan(t0) && (time_current - t0 >= t1) && nansum(expsetup.stim.eframes_fixation_off{tid}(:, 1))==0
@@ -811,7 +817,7 @@ while loop_over==0
         %
         timer1_start = expsetup.stim.edata_response_acquired(tid,1);
         %
-        timer1_duration = expsetup.stim.response_saccade_hold_duration;
+        timer1_duration = expsetup.stim.esetup_response_saccade_hold_duration(tid);
         
         if expsetup.general.recordeyes==1
             if timer1_now - timer1_start < timer1_duration % Record an error
@@ -957,11 +963,13 @@ if strcmp(expsetup.stim.esetup_exp_version{tid}, 'final version') || ...
         expsetup.stim.edata_trial_online_counter(tid,1) = 2;
     end
     %=========
-elseif strcmp(expsetup.stim.esetup_exp_version{tid}, 'visually guided saccade')
+elseif strcmp(expsetup.stim.esetup_exp_version{tid}, 'visually guided saccade st maintain increase') ||...
+        strcmp(expsetup.stim.esetup_exp_version{tid}, 'visually guided saccade')
     %==========
     if strcmp(expsetup.stim.edata_error_code{tid}, 'correct')
         expsetup.stim.edata_trial_online_counter(tid,1) = 1;
-    elseif strcmp(expsetup.stim.edata_error_code{tid}, 'broke fixation') || strcmp(expsetup.stim.edata_error_code{tid}, 'experimenter terminated the trial')
+    elseif strcmp(expsetup.stim.edata_error_code{tid}, 'broke fixation') || strcmp(expsetup.stim.edata_error_code{tid}, 'experimenter terminated the trial') || ...
+            strcmp(expsetup.stim.edata_error_code{tid}, 'left ST')
         expsetup.stim.edata_trial_online_counter(tid,1) = 2;
     end
     %=========

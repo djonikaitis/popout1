@@ -10,7 +10,7 @@ clear all;
 
 expsetup.general.directory_baseline_data_server = 'Y:\data\RigE\Experiments_data\';
 expsetup.general.directory_baseline_data = 'C:\Users\Rig-E\Desktop\Experiments_data\';
-expsetup.general.expname = 'rf3'; % Experiment name
+expsetup.general.expname = 'popout1'; % Experiment name
 expsetup.general.subject_id = 'hb'; % Subject name
 
 path_append = cell(1);
