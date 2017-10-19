@@ -24,7 +24,7 @@ stim.training_stage_matrix = {...
 %% Variables for different training stages
 
 % target soa
-% distractor appears with soa, decrease soa until soa = 0
+% distractor appears later than target, decrease soa until = 0
 stim.target_soa_ini = 0.2;
 stim.target_soa_ini_step = -0.02;
 
@@ -36,8 +36,8 @@ stim.memory_delay_ini_step = 0.05;
 %% Quick settings
 
 % Specify target coordinates based on a RF mapping
-stim.rf1_x = -1;
-stim.rf1_y = -7;
+stim.rf1_x = -6;
+stim.rf1_y = -6;
 stim.target_spacing_arc = 90;
 stim.popout_spacing_arc = 30;
 
@@ -404,7 +404,7 @@ stim.eframes_st2_off{1}(1) = NaN;
 stim.training_stage_matrix_numbers = 1:numel(stim.training_stage_matrix);
 
 if expsetup.general.debug>0
-    stim.exp_version_temp = 'target & distractor all combinations'; % Version you want to run
+    stim.exp_version_temp = 'target soa 0'; % Version you want to run
 else
     a = input ('Select training stage by number. Enter 0 if you want to see the list: ');
     if a==0

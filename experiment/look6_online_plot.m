@@ -76,29 +76,29 @@ look6_online_plot_fig1
 %% FIGURE 2
 % Correct/errors over time
 
-if expsetup.general.plexon_online_spikes == 1
-    hfig = subplot(3,4,2); hold on
-elseif expsetup.general.plexon_online_spikes == 0
-    hfig = subplot(1,4,2); hold on
-end
-
-look6_online_plot_fig2
-
+% if expsetup.general.plexon_online_spikes == 1
+%     hfig = subplot(3,4,2); hold on
+% elseif expsetup.general.plexon_online_spikes == 0
+%     hfig = subplot(1,4,2); hold on
+% end
+% 
+% look6_online_plot_fig2
+% 
 
 %% FIGURE 3
 
 % Eye position
 
-if expsetup.general.recordeyes==1
-    
-    if expsetup.general.plexon_online_spikes == 1
-        hfig = subplot(3,4,[3,4]); hold on
-    elseif expsetup.general.plexon_online_spikes == 0
-        hfig = subplot(1,4,[3,4]); hold on
-    end
-    
-    look6_online_plot_fig3
-end
+% if expsetup.general.recordeyes==1
+%     
+%     if expsetup.general.plexon_online_spikes == 1
+%         hfig = subplot(3,4,[3,4]); hold on
+%     elseif expsetup.general.plexon_online_spikes == 0
+%         hfig = subplot(1,4,[3,4]); hold on
+%     end
+%     
+%     look6_online_plot_fig3
+% end
 
 %% Figure 4
 

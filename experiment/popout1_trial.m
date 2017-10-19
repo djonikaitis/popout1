@@ -329,10 +329,10 @@ while loop_over==0
         end
     end
     
-    %     % ST2 off
-    %     if ~isnan(expsetup.stim.edata_response_acquired(tid,1)) && nansum(expsetup.stim.eframes_st2_off{tid}(:,1))==0
-    %         expsetup.stim.eframes_st2_off{tid}(c1_frame_index1,1) = 1;
-    %     end
+    % ST2 off
+    if ~isnan(expsetup.stim.edata_response_acquired(tid,1)) && nansum(expsetup.stim.eframes_st2_off{tid}(:,1))==0
+        expsetup.stim.eframes_st2_off{tid}(c1_frame_index1,1) = 1;
+    end
     
     % ST2
     t0 = expsetup.stim.edata_fixation_acquired(tid,1);

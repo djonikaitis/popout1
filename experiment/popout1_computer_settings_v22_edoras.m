@@ -8,7 +8,7 @@
 % v21 DJ April 1, 2017. Added tcp ip connection settings
 
 
-function look6_computer_settings_edoras_v22
+function popout1_computer_settings_v22_edoras
  
 global expsetup
 
