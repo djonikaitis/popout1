@@ -69,66 +69,73 @@ if expsetup.general.plexon_online_spikes == 1
 elseif expsetup.general.plexon_online_spikes == 0
     hfig = subplot(1,4,1); hold on
 end
-
-look6_online_plot_fig1
+u1 = sprintf('%s_online_plot_fig1', expsetup.general.expname); % Path to file containing trial settings
+eval (u1);
+    
 
 
 %% FIGURE 2
 % Correct/errors over time
 
-% if expsetup.general.plexon_online_spikes == 1
-%     hfig = subplot(3,4,2); hold on
-% elseif expsetup.general.plexon_online_spikes == 0
-%     hfig = subplot(1,4,2); hold on
-% end
-% 
-% look6_online_plot_fig2
-% 
+if expsetup.general.plexon_online_spikes == 1
+    hfig = subplot(3,4,2); hold on
+elseif expsetup.general.plexon_online_spikes == 0
+    hfig = subplot(1,4,2); hold on
+end
+
+u1 = sprintf('%s_online_plot_fig2', expsetup.general.expname); % Path to file containing trial settings
+eval (u1);
 
 %% FIGURE 3
 
 % Eye position
 
-% if expsetup.general.recordeyes==1
-%     
-%     if expsetup.general.plexon_online_spikes == 1
-%         hfig = subplot(3,4,[3,4]); hold on
-%     elseif expsetup.general.plexon_online_spikes == 0
-%         hfig = subplot(1,4,[3,4]); hold on
-%     end
-%     
-%     look6_online_plot_fig3
-% end
+if expsetup.general.recordeyes==1
+    
+    if expsetup.general.plexon_online_spikes == 1
+        hfig = subplot(3,4,[3,4]); hold on
+    elseif expsetup.general.plexon_online_spikes == 0
+        hfig = subplot(1,4,[3,4]); hold on
+    end
+    
+    u1 = sprintf('%s_online_plot_fig3', expsetup.general.expname); % Path to file containing trial settings
+    eval (u1);
+    
+end
 
 %% Figure 4
 
 % Raw firing rate relative to texture onset
 
-if expsetup.general.plexon_online_spikes==1
-    hfig = subplot(3,4,[5,6]); hold on
-    plot_var1 = 'texture';
-    look6_online_plot_fig4
-end
+% if expsetup.general.plexon_online_spikes==1
+%     hfig = subplot(3,4,[5,6]); hold on
+%     plot_var1 = 'texture';
+%     
+%     u1 = sprintf('%s_online_plot_fig4', expsetup.general.expname); % Path to file containing trial settings
+%     eval (u1);
+% end
 
 %% FIGURE 6
 
 % Firing rate relative to memory onset
 
-if expsetup.general.plexon_online_spikes==1
-    hfig = subplot(3,4,[9,10]); hold on
-    plot_var1 = 'memory';
-    look6_online_plot_fig4
-end
+% if expsetup.general.plexon_online_spikes==1
+%     hfig = subplot(3,4,[9,10]); hold on
+%     plot_var1 = 'memory';
+%     u1 = sprintf('%s_online_plot_fig4', expsetup.general.expname); % Path to file containing trial settings
+%     eval (u1);
+% end
 
 
 %% Figure 5
 
 % Raw firing rate
 
-if expsetup.general.plexon_online_spikes==1
-    hfig = subplot(3,4,[7,8]); hold on
-%     look6_online_plot_fig5
-end
+% if expsetup.general.plexon_online_spikes==1
+%     hfig = subplot(3,4,[7,8]); hold on
+% u1 = sprintf('%s_online_plot_fig5', expsetup.general.expname); % Path to file containing trial settings
+% eval (u1);
+% end
 
 
 

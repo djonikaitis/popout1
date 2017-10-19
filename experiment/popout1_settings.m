@@ -16,25 +16,42 @@ else
 end
 
 stim.training_stage_matrix = {...
-    'visually guided saccade st maintain increase', 'visually guided saccade', 'target soa decrease', 'target soa 0', ...
+    'saccade target hold increase', 'visually guided saccade', ...
+    'target soa decrease', 'target soa 0', ...
+    'fixation - target overlap increase', 'fixation - target overlap stable', ...
+    'fixation - target overlap probability', ...
     'memory delay increase', 'target & distractor all combinations', 'popout', 'all target shapes', ...
     'final version'};
 
 
 %% Variables for different training stages
 
-% visually guided saccade st maintain increase
-stim.response_saccade_hold_duration_ini = 0.05;
-stim.response_saccade_hold_duration_ini_step = 0.05;
+% saccade target hold increase
+stim.saccade_target_hold_duration_ini = 0.05;
+stim.saccade_target_hold_duration_ini_step = 0.05;
 
 % target soa
 % distractor appears later than target, decrease soa until = 0
-stim.target_soa_ini = 0.2;
+stim.target_soa_ini = 0.8;
 stim.target_soa_ini_step = -0.02;
 
 % memory delay increase
-stim.memory_delay_ini = 0.2;
+stim.memory_delay_ini = 0.1;
 stim.memory_delay_ini_step = 0.05;
+
+% fixation - target overlap duration
+stim.fixation_overlap_duration_ini = 0.3;
+stim.fixation_overlap_duration_ini_step = 0.03;
+
+% fixation - target overlap probability
+stim.fixation_overlap_probability_ini = 100; %  percent overlap trials
+stim.fixation_overlap_probability_ini_step = -10;
+
+% Stimulus probabilities set across different stages
+stim.st1_only_probability_ini = 100; % Percent single target
+stim.st1_st2_probability_ini = 100; % Percent st1 and st2
+stim.popout_probability_ini = 0; % Percent popout on
+
 
 
 %% Quick settings
@@ -133,8 +150,10 @@ stim.fixation_color = [20,20,20]; % Color of fixation or text on the screen
 stim.fixation_shape = 'circle';
  
 % Fixation duration
-stim.fixation_acquire_duration = [0.5]; % How long to show fixation before it is acquired
-stim.fixation_maintain_duration = [0.5]; % Time to maintain target before memory onset
+stim.fixation_acquire_duration = 0.5; % How long to show fixation before it is acquired
+stim.fixation_maintain_duration = 0.5; % Time to maintain target before memory onset
+stim.fixation_overlap_duration = 0.5; 
+stim.fixation_overlap_probability = 50; % percent overlap trials
 
 %===============
 % Drif correction
@@ -170,8 +189,8 @@ stim.memory_delay = [0.5];
 % Response objects
 
 stim.response_saccade_accuracy = 5;
-stim.response_duration = 0.7; % How fast to make a response
-stim.response_saccade_hold_duration = 0.3; % How long fixation on the saccade target for it to be a good trial
+stim.response_duration = 0.99; % How fast to make a response
+stim.saccade_target_hold_duration = 0.3; % How long fixation on the saccade target for it to be a good trial
 stim.target_pen_width = 5; % If empty shapes are drawn
 stim.target_soa = 0;
 
@@ -180,13 +199,13 @@ stim.target_soa = 0;
 % Color/shape of st1 in line m is paired with color/shape of st2 in line m
 
 % ST1 ini
-stim.st1_color_ini = [20,150,20; 60,60,150]; % Color of the memory object
+stim.st1_color_ini = [20,150,20; 150,20,20]; % Color of the memory object
 stim.st1_shape_ini{1} = 'rectangle';  % circle, square, empty_circle, empty_quare
 stim.st1_shape_ini{2} = 'square';  % circle, square, empty_circle, empty_quare
 stim.st1_angle_ini = [45; 0];
 
 % ST2 ini
-stim.st2_color_ini = [220,220,220; 20,20,20]; % Color of the memory object
+stim.st2_color_ini = [220,220,220; 20,150,20]; % Color of the memory object
 stim.st2_shape_ini{1} = 'rectangle';  % circle, square, empty_circle, empty_quare
 stim.st2_shape_ini{2} = 'circle';  % circle, square, empty_circle, empty_quare
 stim.st2_angle_ini = [135; 0];
@@ -214,13 +233,6 @@ stim.popout_angle_ini = [0; 0];
 % stim.st2_shape{2} = 'rectangle';  % circle, square, empty_circle, empty_quare
 % stim.st2_shape{3} = 'rectangle';  % circle, square, empty_circle, empty_quare
 % stim.st2_angle = [0;45;60];
-
-%==============
-% Stimulus probabilities
-
-stim.st1_only_probability_ini = 100; % Single target
-stim.st1_st2_probability_ini = 100; % st1 and st2
-stim.popout_probability_ini = 0; % Popout on - off
 
 
 %==============
@@ -283,6 +295,10 @@ stim.esetup_fixation_size_eyetrack(1,1:4) = NaN;
 % Fixation timing
 stim.esetup_fixation_acquire_duration = NaN;
 stim.esetup_fixation_maintain_duration = NaN;
+stim.esetup_fixation_overlap_duration = NaN;
+stim.esetup_fixation_overlap_on = NaN;
+stim.esetup_total_fixation_duration = NaN; % From fixation acquired to fixation off
+
 
 % Fixation drift parameters
 stim.esetup_fixation_drift_correction_on = NaN; % Do drift correction or not?
@@ -317,10 +333,11 @@ stim.esetup_st2_size(1,1:4) = NaN;
 stim.esetup_st2_angle = NaN;
 
 % Targets-distractor common properties
+stim.esetup_total_time_to_st_onset = NaN; % From fixation acquired to st on
 stim.esetup_target_soa = NaN; % SOA between st1 & st2
 stim.esetup_target_size_eyetrack(1,1:4) = NaN;
 stim.esetup_target_number{1} = NaN; % How many targets
-stim.esetup_response_saccade_hold_duration = NaN;
+stim.esetup_saccade_target_hold_duration = NaN;
 
 % Popout
 stim.esetup_popout_on = NaN;
@@ -409,7 +426,7 @@ stim.eframes_st2_off{1}(1) = NaN;
 stim.training_stage_matrix_numbers = 1:numel(stim.training_stage_matrix);
 
 if expsetup.general.debug>0
-    stim.exp_version_temp = 'target soa 0'; % Version you want to run
+    stim.exp_version_temp = 'target soa decrease'; % Version you want to run
 else
     a = input ('Select training stage by number. Enter 0 if you want to see the list: ');
     if a==0

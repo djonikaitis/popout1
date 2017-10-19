@@ -3,42 +3,6 @@
 window = expsetup.screen.window;
 
 
-%% If block number has changed, reset stimulus luminance updating
-% This is specific to only luminance changes; This works for interleaved
-% tasks only
-
-if tid>1 && (strcmp(expsetup.stim.esetup_exp_version{tid-1}, 'task switch luminance change') || strcmp(expsetup.stim.esetup_exp_version{tid-1}, 'task switch luminance equal'))
-    % ind is number of trials in this block
-    if expsetup.stim.trial_error_repeat == 1
-        ind = strcmp(expsetup.stim.edata_error_code, 'correct') & expsetup.stim.esetup_block_no == expsetup.stim.esetup_block_no(tid-1);
-    else
-        ind = expsetup.stim.esetup_block_no == expsetup.stim.esetup_block_no(tid-1);
-    end
-    % If current block is new block, change task version
-    if sum(ind) == expsetup.stim.number_of_trials_per_block
-        a = expsetup.stim.esetup_exp_version{tid-1};
-        ind1 = strcmp(expsetup.stim.training_stage_matrix, a);
-        ind1 = find(ind1==1);
-        if strcmp(a, 'task switch luminance change')
-            if ind1-1>=1
-                b = expsetup.stim.training_stage_matrix{ind1-1};
-            else
-                error('Exp version before "task switch luminance change" has to be defined')
-            end
-        elseif strcmp(a, 'task switch luminance equal')
-            if ind1-2>=1
-                b = expsetup.stim.training_stage_matrix{ind1-2};
-            else
-                error('Exp version before "task switch luminance change" has to be defined')
-            end
-        end
-        expsetup.stim.exp_version_update_next_trial = 1; % Update next trial
-        expsetup.stim.esetup_st2_color_level(tid-1) = expsetup.stim.st2_color_level_ini; % Over-write previous trial
-        expsetup.stim.esetup_exp_version{tid-1} = b; % Over-write previous trial
-    end
-end
-
-
 %% Training stage of the experiment
 
 runexp_trial_update_performance_v12
@@ -177,13 +141,11 @@ while loop_over==0
     end
     
     % Changes in fixation (remove fixation)
-    if strncmp(expsetup.stim.esetup_exp_version, 'visually guided saccade', 23)
-        t0 = expsetup.stim.edata_fixation_acquired(tid,1);
-        t1 = expsetup.stim.esetup_total_fixation_duration(tid,1);
-        if ~isnan(t0) && (time_current - t0 >= t1) && nansum(expsetup.stim.eframes_fixation_off{tid}(:, 1))==0
-            expsetup.stim.eframes_fixation{tid}(c1_frame_index1:end, 1) = 0;
-            expsetup.stim.eframes_fixation_offset{tid}(c1_frame_index1, 1) = 1;
-        end
+    t0 = expsetup.stim.edata_fixation_acquired(tid,1);
+    t1 = expsetup.stim.esetup_total_fixation_duration(tid,1);
+    if ~isnan(t0) && (time_current - t0 >= t1) && nansum(expsetup.stim.eframes_fixation_off{tid}(:, 1))==0
+        expsetup.stim.eframes_fixation{tid}(c1_frame_index1:end, 1) = 0;
+        expsetup.stim.eframes_fixation_offset{tid}(c1_frame_index1, 1) = 1;
     end
     
     
@@ -260,7 +222,7 @@ while loop_over==0
     if expsetup.stim.esetup_popout_on(tid)==1
         
         t0 = expsetup.stim.edata_fixation_acquired(tid,1);
-        t1 = expsetup.stim.esetup_total_fixation_duration(tid,1);
+        t1 = expsetup.stim.esetup_total_time_to_st_onset(tid,1);
         if ~isnan(t0) && (time_current - t0 >= t1)
             % Properties
             sh1 = expsetup.stim.esetup_popout_shape{tid};
@@ -296,7 +258,7 @@ while loop_over==0
     
     % ST1
     t0 = expsetup.stim.edata_fixation_acquired(tid,1);
-    t1 = expsetup.stim.esetup_total_fixation_duration(tid,1);
+    t1 = expsetup.stim.esetup_total_time_to_st_onset(tid,1);
     if ~isnan(t0) && (time_current - t0 >= t1)
         
         if strcmp(expsetup.stim.esetup_target_number{tid}, 'st1') || strcmp(expsetup.stim.esetup_target_number{tid}, 'st1 & st2')
@@ -342,9 +304,8 @@ while loop_over==0
     
     % ST2
     t0 = expsetup.stim.edata_fixation_acquired(tid,1);
-    t1 = expsetup.stim.esetup_total_fixation_duration(tid,1) + expsetup.stim.esetup_target_soa(tid,1);
-    if ~isnan(t0) && (time_current - t0 >= t1) && ...
-            nansum(expsetup.stim.eframes_st2_off{tid}(:,1))==0
+    t1 = expsetup.stim.esetup_total_time_to_st_onset(tid,1) + expsetup.stim.esetup_target_soa(tid,1);
+    if ~isnan(t0) && (time_current - t0 >= t1) && nansum(expsetup.stim.eframes_st2_off{tid}(:,1))==0
         
         if strcmp(expsetup.stim.esetup_target_number{tid}, 'st2') || strcmp(expsetup.stim.esetup_target_number{tid}, 'st1 & st2')
             
@@ -611,7 +572,9 @@ while loop_over==0
             y1_target(1) = y + y1_error; % Fixation coordinates y (with potential error)
             error1(1) = expsetup.stim.esetup_fixation_size_drift(tid,4) * expsetup.screen.deg2pix;
             
-        elseif ~isnan(expsetup.stim.edata_fixation_drift_maintained(tid,1)) && isnan(expsetup.stim.edata_st1_on(tid,1)) % After drift correction or if no drift correction is done
+        elseif ~isnan(expsetup.stim.edata_fixation_drift_maintained(tid,1)) && ...
+                isnan(expsetup.stim.edata_st1_on(tid,1)) && ...
+                isnan(expsetup.stim.edata_fixation_off(tid,1)) % After drift correction or if no drift correction is done
             
             % Target 1 - fixation position
             [x,y]=RectCenter(fixation_rect);
@@ -619,7 +582,7 @@ while loop_over==0
             y1_target(1) = y + y1_error; % Fixation coordinates y (with potential error)
             error1(1) = expsetup.stim.esetup_fixation_size_eyetrack(tid,4) * expsetup.screen.deg2pix;
             
-        elseif ~isnan(expsetup.stim.edata_st1_on(tid,1))
+        elseif ~isnan(expsetup.stim.edata_st1_on(tid,1)) && ~isnan(expsetup.stim.edata_fixation_off(tid,1))
             
             % Target 1 - fixation position
             [x,y]=RectCenter(fixation_rect);
@@ -774,7 +737,8 @@ while loop_over==0
     % Part 4: Determine whether saccade target was acquired
     %===================
     
-    if ~isnan(expsetup.stim.edata_st1_on(tid,1)) && isnan(expsetup.stim.edata_response_acquired(tid,1))
+    if ~isnan(expsetup.stim.edata_st1_on(tid,1)) && isnan(expsetup.stim.edata_fixation_off(tid,1)) && ...
+            isnan(expsetup.stim.edata_response_acquired(tid,1))
         
         % Time
         timer1_now = expsetup.stim.eframes_time{tid}(c1_frame_index1, 1);
@@ -817,7 +781,7 @@ while loop_over==0
         %
         timer1_start = expsetup.stim.edata_response_acquired(tid,1);
         %
-        timer1_duration = expsetup.stim.esetup_response_saccade_hold_duration(tid);
+        timer1_duration = expsetup.stim.esetup_saccade_target_hold_duration(tid);
         
         if expsetup.general.recordeyes==1
             if timer1_now - timer1_start < timer1_duration % Record an error
@@ -963,13 +927,23 @@ if strcmp(expsetup.stim.esetup_exp_version{tid}, 'final version') || ...
         expsetup.stim.edata_trial_online_counter(tid,1) = 2;
     end
     %=========
-elseif strcmp(expsetup.stim.esetup_exp_version{tid}, 'visually guided saccade st maintain increase') ||...
+elseif strcmp(expsetup.stim.esetup_exp_version{tid}, 'saccade target hold increase') ||...
         strcmp(expsetup.stim.esetup_exp_version{tid}, 'visually guided saccade')
     %==========
     if strcmp(expsetup.stim.edata_error_code{tid}, 'correct')
         expsetup.stim.edata_trial_online_counter(tid,1) = 1;
     elseif strcmp(expsetup.stim.edata_error_code{tid}, 'broke fixation') || strcmp(expsetup.stim.edata_error_code{tid}, 'experimenter terminated the trial') || ...
             strcmp(expsetup.stim.edata_error_code{tid}, 'left ST')
+        expsetup.stim.edata_trial_online_counter(tid,1) = 2;
+    end
+    %=========
+elseif strcmp(expsetup.stim.esetup_exp_version{tid}, 'fixation - target overlap increase') ||...
+        strcmp(expsetup.stim.esetup_exp_version{tid}, 'fixation - target overlap stable') ||...
+        strcmp(expsetup.stim.esetup_exp_version{tid}, 'fixation - target overlap probability')
+    %==========
+    if strcmp(expsetup.stim.edata_error_code{tid}, 'correct')
+        expsetup.stim.edata_trial_online_counter(tid,1) = 1;
+    elseif strcmp(expsetup.stim.edata_error_code{tid}, 'broke fixation') || strcmp(expsetup.stim.edata_error_code{tid}, 'experimenter terminated the trial')
         expsetup.stim.edata_trial_online_counter(tid,1) = 2;
     end
     %=========
@@ -1164,12 +1138,15 @@ Screen('Flip', window);
 
 % If plexon recording exists, get spikes
 if expsetup.general.record_plexon == 1 && expsetup.general.plexon_online_spikes == 1
-    look6_online_spikes;
-    look6_online_plot;
+    u1 = sprintf('%s_online_spikes', expsetup.general.expname); % Path to file containing trial settings
+    eval (u1);
+    u1 = sprintf('%s_online_plot', expsetup.general.expname); % Path to file containing trial settings
+    eval (u1);
 end
 
-if expsetup.general.record_plexon == 0
-    look6_online_plot;
+if expsetup.general.plexon_online_spikes == 0
+    u1 = sprintf('%s_online_plot', expsetup.general.expname); % Path to file containing trial settings
+    eval (u1);
 end
 
 

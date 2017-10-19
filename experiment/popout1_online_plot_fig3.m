@@ -210,6 +210,6 @@ else
     set(gca,'XTick', [0, round(   (expsetup.stim.edata_loop_over(tid)- expsetup.stim.edata_first_display(tid)) * 1000  ) ]);
 end
 a1 = (expsetup.stim.edata_loop_over(tid) - expsetup.stim.edata_first_display(tid)) * 1000;
-set(gca,'XLim',[-250,a1+250]);
+set(gca,'XLim',[-250,a1+500]);
 xlabel ('Time from trial start (ms)', 'FontSize', fontszlabel)
 

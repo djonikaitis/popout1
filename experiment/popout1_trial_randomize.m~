@@ -25,6 +25,7 @@ end
 
 var_copy = struct; % This structure exists for training purposes only
 
+
 %% Which exp version is running?
 
 expsetup.stim.esetup_exp_version{tid,1} = expsetup.stim.exp_version_temp;
@@ -103,26 +104,138 @@ expsetup.stim.esetup_fixation_drift_correction_on(tid) = expsetup.stim.fixation_
 % What is starting drift error? 0 by default
 expsetup.stim.esetup_fixation_drift_offset (tid,1:2) = 0;
 
+%% fixation - target overlap
+
+% is there overlap?
+%=========
+ind0 = strcmp(expsetup.stim.training_stage_matrix, expsetup.stim.esetup_exp_version{tid});
+ind1 = find(ind0==1);
+ind0 = strcmp(expsetup.stim.training_stage_matrix, 'fixation - target overlap probability');
+ind2 = find(ind0==1);
+
+a=[];
+if ind1>ind2
+    t1 = expsetup.stim.fixation_overlap_probability;
+    if t1>0
+        a(1:t1) = 1;
+        if t1<=100
+            a(t1+1:100) = 0;
+        end
+    else
+        a(1)=0;
+    end
+    temp1 = Shuffle(a);
+elseif ind1==ind2
+    t1 = tv1(1).temp_var_current;
+    if t1>0
+        a(1:t1) = 1;
+        if t1<=100
+            a(t1+1:100) = 0;
+        end
+    else
+        a(1)=0;
+    end
+    temp1 = Shuffle(a);
+    var_copy.esetup_fixation_overlap_on = temp1(1); % Copy variable for error trials
+elseif ind1<ind2
+    t1 = expsetup.stim.fixation_overlap_probability_ini;
+    if t1>0
+        a(1:t1) = 1;
+        if t1<=100
+            a(t1+1:100) = 0;
+        end
+    else
+        a(1)=0;
+    end
+    temp1 = Shuffle(a);
+end
+%===========
+expsetup.stim.esetup_fixation_overlap_on(tid)=temp1(1);
+
+
+
+% what is overlap duration?
+%=========
+ind0 = strcmp(expsetup.stim.training_stage_matrix, expsetup.stim.esetup_exp_version{tid});
+ind1 = find(ind0==1);
+ind0 = strcmp(expsetup.stim.training_stage_matrix, 'fixation - target overlap increase');
+ind2 = find(ind0==1);
+if ind1>ind2
+    temp1 = Shuffle(expsetup.stim.fixation_overlap_duration);
+elseif ind1==ind2
+    temp1 = Shuffle(tv1(1).temp_var_current);
+    var_copy.esetup_fixation_overlap_duration = temp1(1); % Copy variable for error trials
+elseif ind1<ind2
+    temp1 = Shuffle(expsetup.stim.fixation_overlap_duration_ini);
+end
+%===========
+
+% Overlab
+if expsetup.stim.esetup_fixation_overlap_on(tid)==1
+    expsetup.stim.esetup_fixation_overlap_duration(tid) = temp1(1);
+else
+    expsetup.stim.esetup_fixation_overlap_duration(tid) = 0;
+end
+
+%% hold eye position on saccade target
+
+%=========
+ind0 = strcmp(expsetup.stim.training_stage_matrix, expsetup.stim.esetup_exp_version{tid});
+ind1 = find(ind0==1);
+ind0 = strcmp(expsetup.stim.training_stage_matrix, 'saccade target hold increase');
+ind2 = find(ind0==1);
+if ind1>ind2
+    temp1 = Shuffle(expsetup.stim.saccade_target_hold_duration);
+elseif ind1==ind2
+    temp1 = Shuffle(tv1(1).temp_var_current);
+    var_copy.esetup_saccade_target_hold_duration = temp1(1); % Copy variable for error trials
+elseif ind1<ind2
+    temp1 = Shuffle(expsetup.stim.saccade_target_hold_duration_ini);
+end
+%===========
+expsetup.stim.esetup_saccade_target_hold_duration(tid)=temp1(1);
+
+
 
 %% Target and/or distractor on?
 
 a = [];
-if strcmp(expsetup.stim.esetup_exp_version{tid,1}, 'visually guided saccade') % Single target only
+% Determine if it's single target trial or multiple targets
+ind0 = strcmp(expsetup.stim.training_stage_matrix, expsetup.stim.esetup_exp_version{tid});
+ind1 = find(ind0==1);
+ind0 = strcmp(expsetup.stim.training_stage_matrix, 'visually guided saccade');
+ind2 = find(ind0==1);
+if ind1<=ind2 % Single target only
     t1 = expsetup.stim.st1_only_probability_ini; 
     a(1:t1) = 1;
     temp1 = Shuffle(a);
 else
     ind0 = strcmp(expsetup.stim.training_stage_matrix, expsetup.stim.esetup_exp_version{tid});
     ind1 = find(ind0==1);
-    ind0 = strcmp(expsetup.stim.training_stage_matrix, 'st1 only & st1 + st2');
+    ind0 = strcmp(expsetup.stim.training_stage_matrix, 'target & distractor all combinations');
     ind2 = find(ind0==1);
     if ind1>=ind2 % Single and double target
         t1 = expsetup.stim.st1_only_probability;
-        a(1:t1) = 1;
+        if t1>0
+            a(1:t1) = 1;
+        end
         t1 = expsetup.stim.st2_only_probability;
-        a(end+1:end+t1) = 2;
+        if t1>0
+            if numel(a)>0
+                a(end+1:end+t1) = 2;
+            else
+                a(1:t1) = 2;
+            end
+        end
         t1 = expsetup.stim.st1_st2_probability;
-        a(end+1:end+t1) = 3;
+        if t1>0
+            if numel(a)>0
+                a(end+1:end+t1) = 3;
+            else
+                a(1:t1) = 3;
+            end
+        end
+        temp1 = Shuffle(a);
     elseif ind1<ind2 % st1 & st2 always appear together
         t1 = expsetup.stim.st1_st2_probability_ini;
         a(1:t1) = 3;
@@ -147,18 +260,27 @@ ind0 = strcmp(expsetup.stim.training_stage_matrix, expsetup.stim.esetup_exp_vers
 ind1 = find(ind0==1);
 ind0 = strcmp(expsetup.stim.training_stage_matrix, 'popout');
 ind2 = find(ind0==1);
+a = [];
 if ind1>=ind2
     t1 = expsetup.stim.popout_probability;
-    a(1:t1) = 1;
-    if t1<=100
-        a(t1+1:100) = 0;
+    if t1>0
+        a(1:t1) = 1;
+        if t1<=100
+            a(t1+1:100) = 0;
+        end
+    else
+        a(1)=0;
     end
     temp1 = Shuffle(a); % Select 1 or 2 targets
 elseif ind1<ind2
     t1 = expsetup.stim.popout_probability_ini;
-    a(1:t1) = 1;
-    if t1<=100
-        a(t1+1:100) = 0;
+    if t1>0
+        a(1:t1) = 1;
+        if t1<=100
+            a(t1+1:100) = 0;
+        end
+    else
+        a(1)=0;
     end
     temp1 = Shuffle(a); % Select 1 or 2 targets
 end

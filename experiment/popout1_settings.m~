@@ -3,7 +3,6 @@
 % Produces stim structure which contains all stimuli settings and trial
 % definitions
 
-
 if ~isfield (expsetup.general, 'human_exp')
     expsetup.general.human_exp=1;
 end
@@ -17,73 +16,58 @@ else
 end
 
 stim.training_stage_matrix = {...
-    'visually guided saccade', 'target soa decrease', 'target soa 0', ...
-    'memory delay increase', 'popout', 'all target shapes', ...
+    'saccade target hold increase', 'visually guided saccade', ...
+    'target soa decrease', 'target soa 0', ...
+    'fixation - target overlap increase', 'fixation - target overlap stable', ...
+    'fixation - target overlap probability', ...
+    'memory delay increase', 'target & distractor all combinations', 'popout', 'all target shapes', ...
     'final version'};
-
-stim.training_stage_matrix_numbers = 1:numel(stim.training_stage_matrix);
-
-
-%% Select current training stage
-
-if expsetup.general.debug>0
-    stim.exp_version_temp = 'target soa decrease'; % Version you want to run
-else
-    a = input ('Select training stage by number. Enter 0 if you want to see the list: ');
-    if a==0
-        for i=1:numel(stim.training_stage_matrix)
-            fprintf ('%d - %s\n', i, stim.training_stage_matrix{i})
-        end
-        b = input ('Select training stage by number: ');
-        if b>numel(stim.training_stage_matrix)
-            stim.exp_version_temp = stim.training_stage_matrix{end};
-        else
-            stim.exp_version_temp = stim.training_stage_matrix{b};
-        end
-    else
-        stim.exp_version_temp = stim.training_stage_matrix{a};
-    end
-end
-
-% In case code wont work, just un-comment and over-write:
-% stim.exp_version_temp = 'final version'; % Version you want to run
 
 
 %% Variables for different training stages
 
+% saccade target hold increase
+stim.saccade_target_hold_duration_ini = 0.05;
+stim.saccade_target_hold_duration_ini_step = 0.05;
 
 % target soa
-% distractor appears with soa, decrease soa until soa = 0
-stim.target_soa_ini = 0.2;
+% distractor appears later than target, decrease soa until = 0
+stim.target_soa_ini = 0.8;
 stim.target_soa_ini_step = -0.02;
 
 % memory delay increase
-stim.memory_delay_ini = 0.2;
+stim.memory_delay_ini = 0.1;
 stim.memory_delay_ini_step = 0.05;
 
+% fixation - target overlap duration
+stim.fixation_overlap_duration_ini = 0.3;
+stim.fixation_overlap_duration_ini_step = 0.03;
 
-
+% fixation - target overlap probability
+stim.fixation_overlap_probability_ini = 100; %  percent overlap trials
+stim.fixation_overlap_probability_ini_step = -10;
 
 
 %% Quick settings
 
 % Specify target coordinates based on a RF mapping
-stim.rf1_x = -1;
-stim.rf1_y = -7;
+stim.rf1_x = -6;
+stim.rf1_y = -6;
 stim.target_spacing_arc = 90;
 stim.popout_spacing_arc = 30;
 
-% Defaults
-stim.main_cond = [1]; % 1 - look; 2 - avoid; 3 - control;  Can also run all tasks interleaved
-stim.number_of_trials_per_block = 200;
-stim.number_of_blocks = 4;
-stim.main_cond_shuffle = 1; % 1 - shuffle, 2 - preset order
-
 % Stimulus probabilities
 stim.popout_probability = 70;
-stim.st1_only_probability = 20; % Range 0-100%
-stim.st1_st2_probability = 20; 
-stim.st2_only_probability = 60; 
+stim.st1_only_probability = 20;
+stim.st2_only_probability = 20; 
+stim.st1_st2_probability = 60; 
+
+% Task and block
+stim.main_cond{1} = 'st1 search';
+stim.number_of_trials_per_block = 200;
+stim.number_of_blocks = 10 * numel(stim.main_cond);
+stim.main_cond_shuffle = 1; % 1 - shuffle, 2 - preset order
+
 
 %%  Reward
 
@@ -160,8 +144,10 @@ stim.fixation_color = [20,20,20]; % Color of fixation or text on the screen
 stim.fixation_shape = 'circle';
  
 % Fixation duration
-stim.fixation_acquire_duration = [0.5]; % How long to show fixation before it is acquired
-stim.fixation_maintain_duration = [0.5]; % Time to maintain target before memory onset
+stim.fixation_acquire_duration = 0.5; % How long to show fixation before it is acquired
+stim.fixation_maintain_duration = 0.5; % Time to maintain target before memory onset
+stim.fixation_overlap_duration = 0.5; 
+stim.fixation_overlap_probability = 50; % percent overlap trials
 
 %===============
 % Drif correction
@@ -197,8 +183,8 @@ stim.memory_delay = [0.5];
 % Response objects
 
 stim.response_saccade_accuracy = 5;
-stim.response_duration = 0.5; % How fast to make a response
-stim.response_saccade_hold_duration = 0.3; % How long fixation on the saccade target for it to be a good trial
+stim.response_duration = 0.99; % How fast to make a response
+stim.saccade_target_hold_duration = 0.3; % How long fixation on the saccade target for it to be a good trial
 stim.target_pen_width = 5; % If empty shapes are drawn
 stim.target_soa = 0;
 
@@ -207,13 +193,13 @@ stim.target_soa = 0;
 % Color/shape of st1 in line m is paired with color/shape of st2 in line m
 
 % ST1 ini
-stim.st1_color_ini = [20,150,20; 60,60,150]; % Color of the memory object
+stim.st1_color_ini = [20,150,20; 150,20,20]; % Color of the memory object
 stim.st1_shape_ini{1} = 'rectangle';  % circle, square, empty_circle, empty_quare
 stim.st1_shape_ini{2} = 'square';  % circle, square, empty_circle, empty_quare
 stim.st1_angle_ini = [45; 0];
 
 % ST2 ini
-stim.st2_color_ini = [220,220,220; 20,20,20]; % Color of the memory object
+stim.st2_color_ini = [220,220,220; 20,150,20]; % Color of the memory object
 stim.st2_shape_ini{1} = 'rectangle';  % circle, square, empty_circle, empty_quare
 stim.st2_shape_ini{2} = 'circle';  % circle, square, empty_circle, empty_quare
 stim.st2_angle_ini = [135; 0];
@@ -243,6 +229,14 @@ stim.popout_angle_ini = [0; 0];
 % stim.st2_angle = [0;45;60];
 
 %==============
+% Stimulus probabilities
+
+stim.st1_only_probability_ini = 100; % Percent single target
+stim.st1_st2_probability_ini = 100; % Percent st1 and st2
+stim.popout_probability_ini = 0; % Percent popout on
+
+
+%==============
 % Screen colors
 stim.background_color = [180, 127, 127];
 
@@ -268,7 +262,7 @@ stim.trial_correct_goal_up = 3; % What is accuracy to make task harder
 stim.trial_correct_goal_down = 2; % What is accuracy to make task harder
 
 % Other
-stim.trial_error_repeat = 1; % 1 - repeats same trial if error occured immediatelly; 0 - no repeat
+stim.trial_error_repeat = 0; % 1 - repeats same trial if error occured immediatelly; 0 - no repeat
 stim.trial_abort_counter = 20; % Quit experiment if trials in a row are aborted
 stim.plot_every_x_trial = 1; % Every which trial to plot (every 1, 2nd, 10th etc trial)
 stim.end_experiment = 0; % Default value 
@@ -289,7 +283,7 @@ end
 % Specify column names for expmatrix
 stim.esetup_exp_version{1} = NaN; % Which task version participant is doing
 stim.esetup_block_no = NaN; % Which block number (1:number of blocks)
-stim.esetup_block_cond = NaN; % Which blocked condition is presented
+stim.esetup_block_cond{1} = NaN; % Which blocked condition is presented
 
 % Fixation
 stim.esetup_fixation_coord(1,1:2) = NaN;
@@ -302,6 +296,10 @@ stim.esetup_fixation_size_eyetrack(1,1:4) = NaN;
 % Fixation timing
 stim.esetup_fixation_acquire_duration = NaN;
 stim.esetup_fixation_maintain_duration = NaN;
+stim.esetup_fixation_overlap_duration = NaN;
+stim.esetup_fixation_overlap_on = NaN;
+stim.esetup_total_fixation_duration = NaN; % From fixation acquired to fixation off
+
 
 % Fixation drift parameters
 stim.esetup_fixation_drift_correction_on = NaN; % Do drift correction or not?
@@ -336,9 +334,11 @@ stim.esetup_st2_size(1,1:4) = NaN;
 stim.esetup_st2_angle = NaN;
 
 % Targets-distractor common properties
+stim.esetup_total_time_to_st_onset = NaN; % From fixation acquired to st on
 stim.esetup_target_soa = NaN; % SOA between st1 & st2
 stim.esetup_target_size_eyetrack(1,1:4) = NaN;
 stim.esetup_target_number{1} = NaN; % How many targets
+stim.esetup_saccade_target_hold_duration = NaN;
 
 % Popout
 stim.esetup_popout_on = NaN;
@@ -421,6 +421,32 @@ stim.eframes_st1_on{1}(1) = NaN;
 stim.eframes_st2_on{1}(1) = NaN;
 stim.eframes_st2_off{1}(1) = NaN;
 
+
+%% Select current training stage
+
+stim.training_stage_matrix_numbers = 1:numel(stim.training_stage_matrix);
+
+if expsetup.general.debug>0
+    stim.exp_version_temp = 'target soa decrease'; % Version you want to run
+else
+    a = input ('Select training stage by number. Enter 0 if you want to see the list: ');
+    if a==0
+        for i=1:numel(stim.training_stage_matrix)
+            fprintf ('%d - %s\n', i, stim.training_stage_matrix{i})
+        end
+        b = input ('Select training stage by number: ');
+        if b>numel(stim.training_stage_matrix)
+            stim.exp_version_temp = stim.training_stage_matrix{end};
+        else
+            stim.exp_version_temp = stim.training_stage_matrix{b};
+        end
+    else
+        stim.exp_version_temp = stim.training_stage_matrix{a};
+    end
+end
+
+% In case code wont work, just un-comment and over-write:
+% stim.exp_version_temp = 'final version'; % Version you want to run
 
 
 %% Save into expsetup
