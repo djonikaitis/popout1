@@ -32,14 +32,14 @@ stim.saccade_target_hold_duration_ini_step = 0.05;
 
 % target soa
 % distractor appears later than target, decrease soa until = 0
-stim.target_soa_ini = 0.8;
+stim.target_soa_ini = 0.4;
 stim.target_soa_ini_step = -0.02;
 
 % memory delay increase
 stim.memory_delay_ini = 0.1;
 stim.memory_delay_ini_step = 0.05;
 
-% fixation - target overlap duration
+% fixation - target overlap duration (ALWAYS starts with some overlap)
 stim.fixation_overlap_duration_ini = 0.3;
 stim.fixation_overlap_duration_ini_step = 0.03;
 
@@ -152,7 +152,7 @@ stim.fixation_shape = 'circle';
 % Fixation duration
 stim.fixation_acquire_duration = 0.5; % How long to show fixation before it is acquired
 stim.fixation_maintain_duration = 0.5; % Time to maintain target before memory onset
-stim.fixation_overlap_duration = 0.5; 
+stim.fixation_overlap_duration = [0.4:0.01:0.6]; 
 stim.fixation_overlap_probability = 50; % percent overlap trials
 
 %===============
@@ -163,7 +163,7 @@ stim.fixation_size_drift = 5; % Larger fixation window for drift correction
 stim.fixation_drift_maintain_minimum = 0.4; % Drift correction starts
 stim.fixation_drift_maintain_maximum = 0.5; % Drift correction ends
 if isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id(1:2), 'aq')
-    stim.fixation_size_eyetrack = 2.5; % Window within which to maintain fixation
+    stim.fixation_size_eyetrack = 4; % Window within which to maintain fixation
 elseif isfield(expsetup.general, 'subject_id') && strcmp(expsetup.general.subject_id(1:2), 'hb')
     stim.fixation_size_eyetrack = 2.5; % Window within which to maintain fixation
 else

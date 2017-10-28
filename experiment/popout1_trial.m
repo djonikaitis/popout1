@@ -145,7 +145,7 @@ while loop_over==0
     t1 = expsetup.stim.esetup_total_fixation_duration(tid,1);
     if ~isnan(t0) && (time_current - t0 >= t1) && nansum(expsetup.stim.eframes_fixation_off{tid}(:, 1))==0
         expsetup.stim.eframes_fixation{tid}(c1_frame_index1:end, 1) = 0;
-        expsetup.stim.eframes_fixation_offset{tid}(c1_frame_index1, 1) = 1;
+        expsetup.stim.eframes_fixation_off{tid}(c1_frame_index1, 1) = 1;
     end
     
     
@@ -573,7 +573,6 @@ while loop_over==0
             error1(1) = expsetup.stim.esetup_fixation_size_drift(tid,4) * expsetup.screen.deg2pix;
             
         elseif ~isnan(expsetup.stim.edata_fixation_drift_maintained(tid,1)) && ...
-                isnan(expsetup.stim.edata_st1_on(tid,1)) && ...
                 isnan(expsetup.stim.edata_fixation_off(tid,1)) % After drift correction or if no drift correction is done
             
             % Target 1 - fixation position
@@ -582,8 +581,8 @@ while loop_over==0
             y1_target(1) = y + y1_error; % Fixation coordinates y (with potential error)
             error1(1) = expsetup.stim.esetup_fixation_size_eyetrack(tid,4) * expsetup.screen.deg2pix;
             
-        elseif ~isnan(expsetup.stim.edata_st1_on(tid,1)) && ~isnan(expsetup.stim.edata_fixation_off(tid,1))
-            
+        elseif ~isnan(expsetup.stim.edata_fixation_off(tid,1))
+                        
             % Target 1 - fixation position
             [x,y]=RectCenter(fixation_rect);
             x1_target(1) = x + x1_error; % Fixation coordinates x (with potential error)
@@ -737,13 +736,13 @@ while loop_over==0
     % Part 4: Determine whether saccade target was acquired
     %===================
     
-    if ~isnan(expsetup.stim.edata_st1_on(tid,1)) && isnan(expsetup.stim.edata_fixation_off(tid,1)) && ...
+    if  ~isnan(expsetup.stim.edata_fixation_off(tid,1)) && ...
             isnan(expsetup.stim.edata_response_acquired(tid,1))
-        
+                        
         % Time
         timer1_now = expsetup.stim.eframes_time{tid}(c1_frame_index1, 1);
         %
-        timer1_start = expsetup.stim.edata_st1_on(tid,1);
+        timer1_start = expsetup.stim.edata_fixation_off(tid,1);
         %
         timer1_duration = expsetup.stim.response_duration;
         
